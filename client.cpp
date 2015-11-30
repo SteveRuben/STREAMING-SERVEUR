@@ -1,8 +1,4 @@
-/**
- * OpenCV video streaming over TCP/IP
- * Client: Receives video from server and display it
- * by Isaac Maia
- */
+
 
 #include "opencv2/opencv.hpp"
 #include <sys/socket.h> 
