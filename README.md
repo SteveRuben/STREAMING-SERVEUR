@@ -44,4 +44,7 @@ Pour installer le Serveur, suivez les étapes suivantes :
  ./startup.sh
 
 Si vous avez suivis ces étapes correctement, vous verrer votre webcam (camera) s'allumer.
+
+remerciement: merci monsieur Isaac Maia de votre aide 
+ 
  
