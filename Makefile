@@ -3,8 +3,8 @@ PROGS = $(patsubst %.cpp,%,$(SRCS))
 OBJS = $(SRCS:.cpp=.o)
 TEMPS = $(SRCS:.cpp=.txt)
  
-CFLAGS = -std=c++11 `pkg-config --cflags opencv`
-LDFLAGS = `pkg-config --libs opencv`
+CFLAGS = -std=c++11 `pkg-config --cflags opencv4`
+LDFLAGS = `pkg-config --libs opencv4`
  
 all: $(PROGS)
  
@@ -14,5 +14,4 @@ all: $(PROGS)
  
 clean:
 	@rm -f $(PROGS) $(OBJS) $(TEMPS)
-	@echo "Limpo!"
-
+	@echo "DONE!"
