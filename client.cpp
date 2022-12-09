@@ -1,37 +1,40 @@
 
 
 #include "opencv2/opencv.hpp"
-#include <sys/socket.h> 
+#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <iostream>
 
-
 using namespace cv;
 using namespace std;
 
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 
     //--------------------------------------------------------
-    //networking stuff: socket , connect
+    // networking stuff: socket , connect
     //--------------------------------------------------------
-    int         sokt;
-    char*       serverIP;
-    int         serverPort;
+    int sokt;
+    char *serverIP;
+    int serverPort;
 
-    if (argc < 3) {
-           std::cerr << "Usage: cv_video_cli <serverIP> <serverPort> " << std::endl;
+    if (argc < 3)
+    {
+        serverIP = "10.0.0.210";
+        serverPort = 1235;
+    }
+    else
+    {
+        serverIP = argv[1];
+        serverPort = atoi(argv[2]);
     }
 
-    serverIP   = argv[1];
-    serverPort = atoi(argv[2]);
+    struct sockaddr_in serverAddr;
+    socklen_t addrLen = sizeof(struct sockaddr_in);
 
-    struct  sockaddr_in serverAddr;
-    socklen_t           addrLen = sizeof(struct sockaddr_in);
-
-    if ((sokt = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((sokt = socket(PF_INET, SOCK_STREAM, 0)) < 0)
+    {
         std::cerr << "socket() failed" << std::endl;
     }
 
@@ -39,18 +42,17 @@ int main(int argc, char** argv)
     serverAddr.sin_addr.s_addr = inet_addr(serverIP);
     serverAddr.sin_port = htons(serverPort);
 
-    if (connect(sokt, (sockaddr*)&serverAddr, addrLen) < 0) {
+    if (connect(sokt, (sockaddr *)&serverAddr, addrLen) < 0)
+    {
         std::cerr << "connect() failed!" << std::endl;
     }
 
-
-
     //----------------------------------------------------------
-    //OpenCV Code
+    // OpenCV Code
     //----------------------------------------------------------
 
     Mat img;
-    img = Mat::zeros(480 , 640, CV_8UC1);    
+    img = Mat::zeros(1024, 1280, CV_8UC1);
     int imgSize = img.total() * img.elemSize();
     uchar *iptr = img.data;
     int bytes = 0;
@@ -59,54 +61,56 @@ int main(int argc, char** argv)
     int posX = 5;
     int posY = 50;
     stringstream ss;
-    ss << "Connection time out , please wait ..." ;
+    ss << "Connection time out , please wait ...";
     Point textOrg(posX, posY);
     int fontFace = FONT_HERSHEY_SIMPLEX;
     double fontScale = 0.7;
 
-    
-
-    //make img continuos
-    if ( ! img.isContinuous() ) { 
-          img = img.clone();
+    // make img continuos
+    if (!img.isContinuous())
+    {
+        img = img.clone();
     }
-        
+
     std::cout << "Image Size:" << imgSize << std::endl;
 
+    namedWindow("TSL FireView Spaceborne", 1);
 
-    namedWindow("CV Video Client",1);
+    while (key != 'q')
+    {
 
-    while (key != 'q') {
-
-        if ((bytes = recv(sokt, iptr, imgSize , MSG_WAITALL)) < 1) {
+        if ((bytes = recv(sokt, iptr, imgSize, MSG_WAITALL)) < 1)
+        {
             std::cerr << "recv failed, received bytes = " << bytes << std::endl;
-            
-			close(sokt);	    
-			if ((sokt = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-				std::cerr << "socket() failed" << std::endl;
-			}
 
-			serverAddr.sin_family = PF_INET;
-			serverAddr.sin_addr.s_addr = inet_addr(serverIP);
-			serverAddr.sin_port = htons(serverPort);
+            close(sokt);
+            if ((sokt = socket(PF_INET, SOCK_STREAM, 0)) < 0)
+            {
+                std::cerr << "socket() failed" << std::endl;
+            }
 
-			if (connect(sokt, (sockaddr*)&serverAddr, addrLen) < 0) {
-				std::cerr << "connect() failed!" << std::endl;
-			}
+            serverAddr.sin_family = PF_INET;
+            serverAddr.sin_addr.s_addr = inet_addr(serverIP);
+            serverAddr.sin_port = htons(serverPort);
 
-            putText(img, ss.str(), textOrg, fontFace, fontScale,  CV_RGB(250, 0, 0), thickness);
-            cv::imshow("CV Video Client", img); 	    
-            
-        }else{
-          cv::imshow("CV Video Client", img);   
+            if (connect(sokt, (sockaddr *)&serverAddr, addrLen) < 0)
+            {
+                std::cerr << "connect() failed!" << std::endl;
+            }
+
+            putText(img, ss.str(), textOrg, fontFace, fontScale, CV_RGB(250, 0, 0), thickness);
+            cv::imshow("TSL FireView Spaceborne", img);
         }
-        
-        
-      
-        if (key = cv::waitKey(10) >= 0) break;
-    }   
+        else
+        {
+            cv::imshow("TSL FireView Spaceborne", img);
+        }
+
+        if (key = cv::waitKey(10) >= 0)
+            break;
+    }
 
     close(sokt);
 
     return 0;
-}	
+}
